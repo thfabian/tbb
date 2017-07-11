@@ -196,10 +196,21 @@
 /** on OS X* the only way to get C++11 is to use clang. For library features (e.g. exception_ptr) libc++ is also
  *  required. So there is no need to check GCC version for clang**/
     #define __TBB_CPP11_VARIADIC_TEMPLATES_PRESENT          __has_feature(__cxx_variadic_templates__)
-    #define __TBB_CPP11_RVALUE_REF_PRESENT                  (__has_feature(__cxx_rvalue_references__) && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40300))
+
+    #if __linux__ && !__APPLE__
+      #define __TBB_CPP11_RVALUE_REF_PRESENT                  (__has_feature(__cxx_rvalue_references__))
+    #else
+      #define __TBB_CPP11_RVALUE_REF_PRESENT                  (__has_feature(__cxx_rvalue_references__) && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40300))
+    #endif    
+
     #define __TBB_IMPLICIT_MOVE_PRESENT                     __has_feature(cxx_implicit_moves)
 /** TODO: extend exception_ptr related conditions to cover libstdc++ **/
-    #define __TBB_EXCEPTION_PTR_PRESENT                     (__cplusplus >= 201103L && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40600))
+    #if __linux__ && !__APPLE__
+      #define __TBB_EXCEPTION_PTR_PRESENT                     (__cplusplus >= 201103L && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40600))
+    #else
+      #define __TBB_EXCEPTION_PTR_PRESENT                     (__cplusplus >= 201103L)
+    #endif
+
     #define __TBB_STATIC_ASSERT_PRESENT                     __has_feature(__cxx_static_assert__)
     /**Clang (preprocessor) has problems with dealing with expression having __has_include in #ifs
      * used inside C++ code. (At least version that comes with OS X 10.8 : Apple LLVM version 4.2 (clang-425.0.28) (based on LLVM 3.2svn)) **/
@@ -213,7 +224,12 @@
     #define __TBB_DEFAULTED_AND_DELETED_FUNC_PRESENT        (__has_feature(__cxx_defaulted_functions__) && __has_feature(__cxx_deleted_functions__))
     /**For some unknown reason  __has_feature(__cxx_noexcept) does not yield true for all cases. Compiler bug ? **/
     #define __TBB_NOEXCEPT_PRESENT                          (__cplusplus >= 201103L)
-    #define __TBB_CPP11_STD_BEGIN_END_PRESENT               (__has_feature(__cxx_range_for__) && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40600))
+
+    #if __linux__ && !__APPLE__
+      #define __TBB_CPP11_STD_BEGIN_END_PRESENT               (__has_feature(__cxx_range_for__) && (_LIBCPP_VERSION || __TBB_GLIBCXX_VERSION >= 40600))
+    #else
+      #define __TBB_CPP11_STD_BEGIN_END_PRESENT               (__has_feature(__cxx_range_for__))
+    #endif
     #define __TBB_CPP11_AUTO_PRESENT                        __has_feature(__cxx_auto_type__)
     #define __TBB_CPP11_DECLTYPE_PRESENT                    __has_feature(__cxx_decltype__)
     #define __TBB_CPP11_LAMBDAS_PRESENT                     __has_feature(cxx_lambdas)
